@@ -1,0 +1,1844 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Raw-инструменты</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            background: #f6f8fa;
+            min-height: 100vh;
+            padding: 1.5rem;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            transition: background 0.25s, color 0.2s;
+        }
+
+        body.dark { background: #0d1117; }
+
+        .card {
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 12px 28px rgba(0,0,0,0.08);
+            max-width: 720px;
+            width: 100%;
+            padding: 2rem;
+            transition: background 0.25s, box-shadow 0.2s;
+        }
+
+        body.dark .card {
+            background: #161b22;
+            box-shadow: 0 12px 28px rgba(0,0,0,0.5);
+            color: #e6edf3;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #1f2328;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1.2rem;
+            flex-wrap: wrap;
+        }
+
+        body.dark h1 { color: #e6edf3; }
+
+        h1 span {
+            background: #1f2328;
+            color: #fff;
+            font-size: 0.75rem;
+            font-weight: 500;
+            padding: 0.25rem 0.65rem;
+            border-radius: 20px;
+        }
+
+        body.dark h1 span {
+            background: #e6edf3;
+            color: #0d1117;
+        }
+
+        .theme-toggle {
+            margin-left: auto;
+            background: transparent;
+            border: 1.5px solid #d0d7de;
+            border-radius: 40px;
+            padding: 0.3rem 0.8rem;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            cursor: pointer;
+            color: #24292f;
+            transition: background 0.2s, border 0.2s;
+            font-weight: 500;
+            flex: 0 0 auto;
+        }
+
+        body.dark .theme-toggle {
+            border-color: #30363d;
+            color: #e6edf3;
+            background: #21262d;
+        }
+
+        .theme-toggle:hover { background: #f0f2f5; }
+        body.dark .theme-toggle:hover { background: #30363d; }
+
+        .tabs {
+            display: flex;
+            background: #f0f2f5;
+            border-radius: 14px;
+            padding: 0.35rem;
+            margin-bottom: 1.5rem;
+            gap: 0.25rem;
+            transition: background 0.2s;
+        }
+
+        body.dark .tabs { background: #21262d; }
+
+        .tab {
+            flex: 1;
+            border: none;
+            background: transparent;
+            padding: 0.7rem 0.4rem;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #57606a;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.3rem;
+            white-space: nowrap;
+        }
+
+        body.dark .tab { color: #8b949e; }
+        .tab:hover:not(.active) { background: rgba(255,255,255,0.6); }
+        body.dark .tab:hover:not(.active) { background: rgba(255,255,255,0.05); }
+
+        .tab.active {
+            background: #fff;
+            color: #1f2328;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+        }
+
+        body.dark .tab.active {
+            background: #0d1117;
+            color: #e6edf3;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+        }
+
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; animation: fadeIn 0.2s ease; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .subhead {
+            font-size: 0.9rem;
+            color: #57606a;
+            margin-bottom: 1.3rem;
+            border-left: 4px solid #2da44e;
+            padding-left: 1rem;
+            line-height: 1.4;
+        }
+
+        body.dark .subhead { color: #8b949e; }
+        .subhead.roblox { border-left-color: #e03e3e; }
+
+        label {
+            font-weight: 500;
+            font-size: 0.9rem;
+            color: #24292f;
+            display: block;
+            margin-bottom: 0.4rem;
+        }
+
+        body.dark label { color: #e6edf3; }
+
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 0.9rem 1.1rem;
+            font-size: 0.95rem;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            border: 1.5px solid #d0d7de;
+            border-radius: 12px;
+            background: #f9fafb;
+            color: #1f2328;
+            transition: border 0.15s, box-shadow 0.15s, background 0.15s;
+            margin-bottom: 1rem;
+        }
+
+        body.dark input[type="text"],
+        body.dark textarea {
+            background: #0d1117;
+            border-color: #30363d;
+            color: #e6edf3;
+        }
+
+        input[type="text"]:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #2da44e;
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(45,164,78,0.15);
+        }
+
+        body.dark input[type="text"]:focus,
+        body.dark textarea:focus {
+            background: #0d1117;
+            border-color: #2da44e;
+        }
+
+        .actions {
+            display: flex;
+            gap: 0.7rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+
+        button {
+            border: none;
+            border-radius: 12px;
+            font-weight: 500;
+            font-size: 0.95rem;
+            padding: 0.85rem 1.4rem;
+            cursor: pointer;
+            transition: background 0.15s, transform 0.1s, border 0.15s;
+            font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            flex: 1 1 auto;
+            border: 1px solid transparent;
+        }
+
+        button:active { transform: scale(0.97); }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .btn-primary {
+            background: #2da44e;
+            color: white;
+            box-shadow: 0 2px 6px rgba(45,164,78,0.3);
+        }
+        .btn-primary:hover:not(:disabled) { background: #2c974b; }
+
+        .btn-roblox {
+            background: #e03e3e;
+            color: white;
+            box-shadow: 0 2px 6px rgba(224,62,62,0.3);
+        }
+        .btn-roblox:hover:not(:disabled) { background: #cc3535; }
+
+        .btn-secondary {
+            background: #fff;
+            color: #24292f;
+            border: 1.5px solid #d0d7de;
+        }
+        .btn-secondary:hover:not(:disabled) { background: #f3f4f6; }
+
+        body.dark .btn-secondary {
+            background: #21262d;
+            color: #e6edf3;
+            border-color: #30363d;
+        }
+        body.dark .btn-secondary:hover:not(:disabled) { background: #30363d; }
+
+        .btn-copy {
+            background: #0969da;
+            color: white;
+            padding: 0.7rem 1.2rem;
+            font-size: 0.9rem;
+        }
+        .btn-copy:hover { background: #0a5fc2; }
+        .btn-copy.copied { background: #2da44e; }
+
+        .result-section {
+            margin-top: 1rem;
+            background: #f6f8fa;
+            border-radius: 16px;
+            padding: 1.1rem;
+            border: 1px solid #e6e8eb;
+            transition: background 0.2s, border 0.2s;
+        }
+
+        body.dark .result-section {
+            background: #0d1117;
+            border-color: #30363d;
+        }
+
+        .result-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #57606a;
+            font-weight: 600;
+            margin-bottom: 0.6rem;
+        }
+
+        body.dark .result-label { color: #8b949e; }
+
+        .result-box {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            background: #fff;
+            border-radius: 12px;
+            padding: 0.55rem 0.55rem 0.55rem 1rem;
+            border: 1px solid #d0d7de;
+            flex-wrap: wrap;
+        }
+
+        body.dark .result-box {
+            background: #161b22;
+            border-color: #30363d;
+        }
+
+        .result-box input,
+        .result-box textarea {
+            border: none;
+            background: transparent;
+            padding: 0.5rem 0;
+            box-shadow: none;
+            font-size: 0.85rem;
+            color: #0969da;
+            font-weight: 500;
+            flex: 1;
+            min-width: 0;
+            margin: 0;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            resize: none;
+            line-height: 1.4;
+        }
+
+        body.dark .result-box input,
+        body.dark .result-box textarea { color: #58a6ff; }
+
+        .result-box input:focus,
+        .result-box textarea:focus {
+            box-shadow: none;
+            background: transparent;
+            border: none;
+            outline: none;
+        }
+
+        .result-box textarea {
+            min-height: 60px;
+            overflow: hidden;
+        }
+
+        .btn-copy-small {
+            background: #eef1f4;
+            border-radius: 8px;
+            padding: 0.55rem 0.9rem;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: #24292f;
+            border: none;
+            cursor: pointer;
+            transition: background 0.15s;
+            white-space: nowrap;
+            flex: 0 0 auto;
+            align-self: stretch;
+        }
+
+        body.dark .btn-copy-small {
+            background: #21262d;
+            color: #e6edf3;
+        }
+        body.dark .btn-copy-small:hover { background: #30363d; }
+
+        .btn-copy-small:hover { background: #e1e5ea; }
+        .btn-copy-small.copied { background: #2da44e; color: white; }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.6rem;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .file-info {
+            font-size: 0.78rem;
+            color: #8c959f;
+        }
+
+        body.dark .file-info { color: #6e7681; }
+
+        .result-content {
+            background: #0d1117;
+            color: #e6edf3;
+            border-radius: 12px;
+            padding: 1rem;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            max-height: 400px;
+            overflow: auto;
+            white-space: pre-wrap;
+            word-break: break-word;
+            border: 1px solid #30363d;
+        }
+
+        body.dark .result-content {
+            background: #0d1117;
+            border-color: #30363d;
+        }
+
+        .error-message {
+            color: #cf222e;
+            background: #ffebe9;
+            border-radius: 10px;
+            padding: 0.8rem 1rem;
+            font-size: 0.9rem;
+            margin-top: 1rem;
+            border-left: 4px solid #cf222e;
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        body.dark .error-message {
+            background: #3d1a1a;
+            color: #ff7b72;
+            border-left-color: #ff7b72;
+        }
+
+        .error-message.hidden { display: none; }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .footer {
+            margin-top: 1.5rem;
+            text-align: center;
+            font-size: 0.78rem;
+            color: #8c959f;
+            border-top: 1px solid #e6e8eb;
+            padding-top: 1rem;
+        }
+
+        body.dark .footer {
+            border-top-color: #30363d;
+            color: #6e7681;
+        }
+
+        .download-row {
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+            margin-top: 0.8rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-download {
+            background: #0969da;
+            color: white;
+            padding: 0.7rem 1.2rem;
+            font-size: 0.9rem;
+            border-radius: 12px;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.15s, transform 0.1s;
+            flex: 0 1 auto;
+        }
+
+        .btn-download:hover { background: #0a5fc2; }
+        .btn-download:active { transform: scale(0.97); }
+
+        .btn-pastefy {
+            background: #7c3aed;
+            color: white;
+            padding: 0.7rem 1.2rem;
+            font-size: 0.9rem;
+            border-radius: 12px;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.15s, transform 0.1s;
+            flex: 0 1 auto;
+        }
+
+        .btn-pastefy:hover:not(:disabled) { background: #6d28d9; }
+        .btn-pastefy:active:not(:disabled) { transform: scale(0.97); }
+        .btn-pastefy:disabled { opacity: 0.6; cursor: not-allowed; }
+
+        .btn-save {
+            background: #24292f;
+            color: white;
+            padding: 0.7rem 1.2rem;
+            font-size: 0.9rem;
+            border-radius: 12px;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.15s, transform 0.1s;
+            flex: 0 1 auto;
+        }
+        body.dark .btn-save { background: #e6edf3; color: #0d1117; }
+        .btn-save:hover:not(:disabled) { background: #3a4048; }
+        body.dark .btn-save:hover:not(:disabled) { background: #c9d1d9; }
+        .btn-save:disabled { opacity: 0.6; cursor: not-allowed; }
+
+        .save-status {
+            font-size: 0.8rem;
+            color: #2da44e;
+            margin-top: 0.4rem;
+            font-weight: 500;
+            word-break: break-all;
+        }
+
+        body.dark .save-status { color: #3fb950; }
+
+        .save-status a {
+            color: #0969da;
+            text-decoration: none;
+        }
+        body.dark .save-status a { color: #58a6ff; }
+        .save-status a:hover { text-decoration: underline; }
+
+        /* Модальные окна */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 1rem;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .modal-overlay.hidden { display: none; }
+
+        .modal {
+            background: #fff;
+            border-radius: 20px;
+            padding: 1.8rem;
+            max-width: 460px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: slideUp 0.25s ease;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        body.dark .modal {
+            background: #161b22;
+            color: #e6edf3;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .modal h3 {
+            font-size: 1.15rem;
+            margin-bottom: 0.6rem;
+            color: #1f2328;
+            font-weight: 600;
+        }
+
+        body.dark .modal h3 { color: #e6edf3; }
+
+        .modal p {
+            font-size: 0.88rem;
+            color: #57606a;
+            margin-bottom: 1.2rem;
+            line-height: 1.5;
+        }
+
+        body.dark .modal p { color: #8b949e; }
+
+        .modal-option {
+            display: block;
+            width: 100%;
+            text-align: left;
+            background: #f6f8fa;
+            border: 1.5px solid #d0d7de;
+            border-radius: 12px;
+            padding: 0.9rem 1rem;
+            margin-bottom: 0.7rem;
+            cursor: pointer;
+            transition: all 0.15s;
+            font-family: inherit;
+            font-size: 0.9rem;
+            color: #24292f;
+        }
+
+        body.dark .modal-option {
+            background: #0d1117;
+            border-color: #30363d;
+            color: #e6edf3;
+        }
+
+        .modal-option:hover {
+            border-color: #7c3aed;
+            background: #f3e8ff;
+        }
+
+        body.dark .modal-option:hover {
+            background: #1c1626;
+            border-color: #7c3aed;
+        }
+
+        .modal-option strong {
+            display: block;
+            margin-bottom: 0.2rem;
+            font-weight: 600;
+        }
+
+        .modal-option small {
+            color: #8c959f;
+            font-size: 0.78rem;
+        }
+
+        body.dark .modal-option small { color: #6e7681; }
+
+        .modal-cancel {
+            width: 100%;
+            background: transparent;
+            border: 1.5px solid #d0d7de;
+            color: #57606a;
+            padding: 0.7rem;
+            border-radius: 10px;
+            font-size: 0.88rem;
+            margin-top: 0.4rem;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: 500;
+        }
+
+        body.dark .modal-cancel {
+            border-color: #30363d;
+            color: #8b949e;
+        }
+
+        .modal-cancel:hover { background: #f0f2f5; }
+        body.dark .modal-cancel:hover { background: #21262d; }
+
+        .pastefy-list {
+            margin-top: 0.6rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+        }
+
+        .pastefy-list a {
+            color: #0969da;
+            text-decoration: none;
+            font-size: 0.82rem;
+            font-weight: 500;
+            word-break: break-all;
+            padding: 0.3rem 0;
+        }
+        body.dark .pastefy-list a { color: #58a6ff; }
+        .pastefy-list a:hover { text-decoration: underline; }
+
+        .part-progress {
+            font-size: 0.85rem;
+            color: #7c3aed;
+            margin-top: 0.4rem;
+            font-weight: 500;
+        }
+
+        /* GitHub form */
+        .gh-form .field {
+            margin-bottom: 0.8rem;
+        }
+        .gh-form label {
+            font-size: 0.8rem;
+            margin-bottom: 0.25rem;
+            color: #57606a;
+        }
+        body.dark .gh-form label { color: #8b949e; }
+        .gh-form input {
+            padding: 0.65rem 0.9rem;
+            font-size: 0.85rem;
+            margin-bottom: 0;
+        }
+        .gh-form .hint {
+            font-size: 0.72rem;
+            color: #8c959f;
+            margin-top: 0.2rem;
+        }
+        body.dark .gh-form .hint { color: #6e7681; }
+        .gh-form .checkbox-row {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.82rem;
+            color: #57606a;
+            margin-bottom: 0.8rem;
+        }
+        body.dark .gh-form .checkbox-row { color: #8b949e; }
+        .gh-form input[type="checkbox"] {
+            width: auto;
+            margin: 0;
+            flex: 0 0 auto;
+        }
+
+        @media (max-width: 480px) {
+            .card { padding: 1.4rem 1.1rem; }
+            h1 { font-size: 1.25rem; }
+            button { padding: 0.75rem 1rem; font-size: 0.88rem; }
+            .tab { font-size: 0.72rem; padding: 0.6rem 0.2rem; gap: 0.15rem; }
+            .result-box { flex-direction: column; align-items: stretch; padding: 0.7rem; }
+            .btn-copy-small { width: 100%; align-self: auto; }
+            .theme-toggle { font-size: 0.75rem; padding: 0.3rem 0.6rem; }
+            .download-row { flex-direction: column; align-items: stretch; }
+            .btn-download, .btn-pastefy, .btn-save { width: 100%; justify-content: center; }
+            .modal { padding: 1.4rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>
+            🛠️ Raw-инструменты
+            <span>универсальные</span>
+            <button class="theme-toggle" id="themeToggle" title="Переключить тему">
+                🌙 <span id="themeIcon">Тёмная</span>
+            </button>
+        </h1>
+
+        <div class="tabs">
+            <button class="tab active" data-tab="tab-link">🔗 Ссылка</button>
+            <button class="tab" data-tab="tab-text">📄 Текст</button>
+            <button class="tab" data-tab="tab-roblox">🎮 Roblox</button>
+        </div>
+
+        <!-- ============== ВКЛАДКА 1: Raw → Прямая ссылка ============== -->
+        <div class="tab-panel active" id="tab-link">
+            <div class="subhead">
+                Вставьте <strong>любую raw-ссылку</strong> — получите обычную ссылку для просмотра в браузере.
+            </div>
+
+            <label for="rawLinkInput">Raw-ссылка</label>
+            <input 
+                type="text" 
+                id="rawLinkInput" 
+                placeholder="https://raw.githubusercontent.com/пользователь/репозиторий/ветка/файл.txt" 
+                autocomplete="off"
+                spellcheck="false"
+            >
+
+            <div class="actions">
+                <button class="btn-primary" id="convertBtn">⚡ Преобразовать</button>
+                <button class="btn-secondary" id="pasteLinkBtn">📋 Вставить</button>
+                <button class="btn-secondary" id="clearLinkBtn">✕ Очистить</button>
+            </div>
+
+            <div id="linkError" class="error-message hidden">
+                <span>⚠️</span>
+                <span id="linkErrorText"></span>
+            </div>
+
+            <div class="result-section" id="linkResultSection" style="display: none;">
+                <div class="result-label">Обычная ссылка</div>
+                <div class="result-box">
+                    <input type="text" id="linkOutput" readonly value="">
+                    <button class="btn-copy-small" id="copyLinkBtn">Копировать</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============== ВКЛАДКА 2: Raw → Текст файла ============== -->
+        <div class="tab-panel" id="tab-text">
+            <div class="subhead">
+                Вставьте <strong>любую raw-ссылку</strong> — получите содержимое файла и кнопки для работы с ним.
+            </div>
+
+            <label for="rawTextInput">Ссылка на файл</label>
+            <input 
+                type="text" 
+                id="rawTextInput" 
+                placeholder="https://raw.githubusercontent.com/пользователь/репозиторий/ветка/файл.txt" 
+                autocomplete="off"
+                spellcheck="false"
+            >
+
+            <div class="actions">
+                <button class="btn-primary" id="loadBtn">⬇️ Загрузить текст</button>
+                <button class="btn-secondary" id="pasteTextBtn">📋 Вставить</button>
+                <button class="btn-secondary" id="clearTextBtn">✕ Очистить</button>
+            </div>
+
+            <div id="textError" class="error-message hidden">
+                <span>⚠️</span>
+                <span id="textErrorText"></span>
+            </div>
+
+            <div class="result-section" id="textResultSection" style="display: none;">
+                <div class="result-header">
+                    <div class="result-label">Содержимое файла</div>
+                    <div class="file-info" id="fileInfo"></div>
+                </div>
+                <div class="result-content" id="resultContent"></div>
+                <div class="download-row">
+                    <button class="btn-copy" id="copyTextBtn" style="flex:1;">
+                        📋 Копировать весь текст
+                    </button>
+                    <button class="btn-download" id="downloadTextBtn" style="flex:0 1 auto;">
+                        📦 Скачать файл
+                    </button>
+                    <button class="btn-save" id="saveBtn" style="flex:0 1 auto;">
+                        ☁️ Сохранить
+                    </button>
+                </div>
+                <div class="save-status" id="saveStatus" style="display:none;"></div>
+            </div>
+        </div>
+
+        <!-- ============== ВКЛАДКА 3: Raw → loadstring ============== -->
+        <div class="tab-panel" id="tab-roblox">
+            <div class="subhead roblox">
+                Вставьте <strong>raw-ссылку</strong> — получите готовую команду для Roblox:
+                <code style="background:#eef1f4; padding:0.1rem 0.35rem; border-radius:5px; font-size:0.8rem;">loadstring(game:HttpGet("URL"))()</code>
+            </div>
+
+            <label for="rawRobloxInput">Raw-ссылка на скрипт</label>
+            <input 
+                type="text" 
+                id="rawRobloxInput" 
+                placeholder="https://raw.githubusercontent.com/пользователь/репозиторий/ветка/script.lua" 
+                autocomplete="off"
+                spellcheck="false"
+            >
+
+            <div class="actions">
+                <button class="btn-roblox" id="makeRobloxBtn">🎮 Сделать команду</button>
+                <button class="btn-secondary" id="pasteRobloxBtn">📋 Вставить</button>
+                <button class="btn-secondary" id="clearRobloxBtn">✕ Очистить</button>
+            </div>
+
+            <div id="robloxError" class="error-message hidden">
+                <span>⚠️</span>
+                <span id="robloxErrorText"></span>
+            </div>
+
+            <div class="result-section" id="robloxResultSection" style="display: none;">
+                <div class="result-label">Команда для Roblox</div>
+                <div class="result-box">
+                    <textarea id="robloxOutput" readonly rows="2"></textarea>
+                    <button class="btn-copy-small" id="copyRobloxBtn">Копировать</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            Работает в браузере · Без серверов и слежки · <span id="themeFooter">🌙 тёмная тема</span>
+        </div>
+    </div>
+
+    <!-- ============== МОДАЛЬНОЕ ОКНО: выбор сервиса ============== -->
+    <div class="modal-overlay hidden" id="saveModal">
+        <div class="modal">
+            <h3>☁️ Сохранить текст</h3>
+            <p id="saveModalDescription">Выберите сервис для сохранения:</p>
+            <button class="modal-option" id="modalPastefyBtn">
+                <strong>🟣 Pastefy</strong>
+                <small>Анонимный паст, можно разбить на части</small>
+            </button>
+            <button class="modal-option" id="modalGithubBtn">
+                <strong>🐙 GitHub</strong>
+                <small>Создать/обновить файл в вашем репозитории</small>
+            </button>
+            <button class="modal-cancel" id="modalSaveCancelBtn">Отмена</button>
+        </div>
+    </div>
+
+    <!-- ============== МОДАЛЬНОЕ ОКНО: Pastefy (выбор режима) ============== -->
+    <div class="modal-overlay hidden" id="pastefyModal">
+        <div class="modal">
+            <h3>🟣 Отправка на Pastefy</h3>
+            <p id="modalDescription">
+                Текст слишком большой для одного паста. Выберите, как отправить.
+            </p>
+            <button class="modal-option" id="modalSingleBtn">
+                <strong>📄 Отправить одним пастом</strong>
+                <small>Может не сработать при большом размере</small>
+            </button>
+            <button class="modal-option" id="modalSplitBtn">
+                <strong>✂️ Разделить на части</strong>
+                <small id="modalSplitInfo">Будет создано несколько пастов</small>
+            </button>
+            <button class="modal-cancel" id="modalCancelBtn">Отмена</button>
+        </div>
+    </div>
+
+    <!-- ============== МОДАЛЬНОЕ ОКНО: GitHub ============== -->
+    <div class="modal-overlay hidden" id="githubModal">
+        <div class="modal">
+            <h3>🐙 Сохранить в GitHub</h3>
+            <p>Файл будет создан или обновлён в указанном репозитории.</p>
+            <div class="gh-form">
+                <div class="field">
+                    <label for="ghToken">Personal Access Token</label>
+                    <input type="password" id="ghToken" placeholder="ghp_..." autocomplete="off">
+                    <div class="hint">Нужен токен с правами <code>repo</code> (или <code>public_repo</code> для публичных). <a href="https://github.com/settings/tokens" target="_blank" rel="noopener">Создать токен</a></div>
+                </div>
+                <div class="field">
+                    <label for="ghOwner">Владелец (логин или организация)</label>
+                    <input type="text" id="ghOwner" placeholder="username" autocomplete="off">
+                </div>
+                <div class="field">
+                    <label for="ghRepo">Репозиторий</label>
+                    <input type="text" id="ghRepo" placeholder="my-repo" autocomplete="off">
+                </div>
+                <div class="field">
+                    <label for="ghBranch">Ветка</label>
+                    <input type="text" id="ghBranch" placeholder="main" autocomplete="off">
+                </div>
+                <div class="field">
+                    <label for="ghPath">Путь к файлу</label>
+                    <input type="text" id="ghPath" placeholder="folder/file.txt" autocomplete="off">
+                </div>
+                <div class="field">
+                    <label for="ghMessage">Сообщение коммита</label>
+                    <input type="text" id="ghMessage" placeholder="Update file.txt" autocomplete="off">
+                </div>
+                <div class="checkbox-row">
+                    <input type="checkbox" id="ghRemember">
+                    <label for="ghRemember" style="margin:0; font-weight:400;">Запомнить настройки и токен (localStorage)</label>
+                </div>
+            </div>
+            <button class="modal-option" id="ghSubmitBtn" style="background:#2da44e; color:white; border-color:#2da44e; text-align:center;">
+                <strong>💾 Сохранить</strong>
+            </button>
+            <button class="modal-cancel" id="ghCancelBtn">Отмена</button>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            /* ============ Тёмная тема ============ */
+            const themeToggle = document.getElementById('themeToggle');
+            const themeIcon = document.getElementById('themeIcon');
+            const themeFooter = document.getElementById('themeFooter');
+            const body = document.body;
+
+            function setTheme(dark) {
+                if (dark) {
+                    body.classList.add('dark');
+                    themeIcon.textContent = 'Светлая';
+                    themeFooter.textContent = '☀️ светлая тема';
+                } else {
+                    body.classList.remove('dark');
+                    themeIcon.textContent = 'Тёмная';
+                    themeFooter.textContent = '🌙 тёмная тема';
+                }
+                try { localStorage.setItem('rawToolsDark', dark ? '1' : '0'); } catch(e) {}
+            }
+
+            try {
+                const saved = localStorage.getItem('rawToolsDark');
+                if (saved === '1') setTheme(true);
+                else if (saved === '0') setTheme(false);
+                else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                    setTheme(true);
+                } else {
+                    setTheme(false);
+                }
+            } catch(e) { setTheme(false); }
+
+            themeToggle.addEventListener('click', () => {
+                setTheme(!body.classList.contains('dark'));
+            });
+
+            /* ============ Переключение вкладок ============ */
+            const tabs = document.querySelectorAll('.tab');
+            const panels = document.querySelectorAll('.tab-panel');
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const targetId = tab.dataset.tab;
+                    tabs.forEach(t => t.classList.remove('active'));
+                    panels.forEach(p => p.classList.remove('active'));
+                    tab.classList.add('active');
+                    document.getElementById(targetId).classList.add('active');
+                });
+            });
+
+            /* =====================================================
+               ВКЛАДКА 1: Raw → Обычная ссылка
+               ===================================================== */
+            const rawLinkInput = document.getElementById('rawLinkInput');
+            const convertBtn = document.getElementById('convertBtn');
+            const pasteLinkBtn = document.getElementById('pasteLinkBtn');
+            const clearLinkBtn = document.getElementById('clearLinkBtn');
+            const linkError = document.getElementById('linkError');
+            const linkErrorText = document.getElementById('linkErrorText');
+            const linkResultSection = document.getElementById('linkResultSection');
+            const linkOutput = document.getElementById('linkOutput');
+            const copyLinkBtn = document.getElementById('copyLinkBtn');
+
+            function convertRawToDirect(rawUrl) {
+                const trimmed = rawUrl.trim();
+                if (!trimmed) throw new Error('Пустая ссылка');
+
+                let url;
+                try {
+                    url = new URL(trimmed);
+                } catch {
+                    throw new Error('Некорректный URL. Проверьте ссылку.');
+                }
+
+                const host = url.hostname.toLowerCase();
+                let path = url.pathname;
+                let newHost = host;
+                let newPath = path;
+
+                if (host === 'raw.githubusercontent.com') {
+                    newHost = 'github.com';
+                    const parts = path.split('/').filter(Boolean);
+                    if (parts.length < 3) throw new Error('Недостаточно сегментов в пути GitHub');
+                    const [user, repo, branch, ...rest] = parts;
+                    newPath = `/${user}/${repo}/blob/${branch}${rest.length ? '/' + rest.join('/') : ''}`;
+                }
+                else if (host === 'gist.githubusercontent.com') {
+                    newHost = 'gist.github.com';
+                    const parts = path.split('/').filter(Boolean);
+                    if (parts.length < 2) throw new Error('Недостаточно сегментов в gist-пути');
+                    newPath = `/${parts[0]}/${parts[1]}`;
+                }
+                else if (host.endsWith('gitlab.com') && path.includes('/raw/')) {
+                    newPath = path.replace('/raw/', '/blob/');
+                }
+                else if (host.endsWith('bitbucket.org') && path.includes('/raw/')) {
+                    newPath = path.replace('/raw/', '/src/');
+                }
+                else if (host === 'cdn.jsdelivr.net') {
+                    const match = path.match(/^\/gh\/([^/]+)\/([^/@]+)(?:@([^/]+))?(\/.*)?$/);
+                    if (match) {
+                        const [, user, repo, version = 'main', filePath = ''] = match;
+                        newHost = 'github.com';
+                        newPath = `/${user}/${repo}/blob/${version}${filePath}`;
+                    } else {
+                        throw new Error('Не удалось разобрать jsDelivr-ссылку');
+                    }
+                }
+                else if (host === 'pastefy.app' && path.endsWith('/raw')) {
+                    newPath = path.replace(/\/raw$/, '');
+                }
+                else if (path.includes('/raw/')) {
+                    newPath = path.replace('/raw/', '/blob/');
+                }
+                else if (path.endsWith('/raw')) {
+                    newPath = path.replace(/\/raw$/, '');
+                }
+                else {
+                    throw new Error('Не удалось распознать raw-ссылку.');
+                }
+
+                return `https://${newHost}${newPath}`;
+            }
+
+            function showLinkError(msg) {
+                linkErrorText.textContent = msg;
+                linkError.classList.remove('hidden');
+                linkResultSection.style.display = 'none';
+                linkOutput.value = '';
+            }
+
+            function hideLinkError() {
+                linkError.classList.add('hidden');
+            }
+
+            function handleConvert() {
+                const val = rawLinkInput.value.trim();
+                if (!val) {
+                    showLinkError('Введите raw-ссылку');
+                    return;
+                }
+                try {
+                    const direct = convertRawToDirect(val);
+                    linkOutput.value = direct;
+                    linkResultSection.style.display = 'block';
+                    hideLinkError();
+                    copyLinkBtn.textContent = 'Копировать';
+                    copyLinkBtn.classList.remove('copied');
+                } catch (err) {
+                    showLinkError(err.message);
+                }
+            }
+
+            async function handlePasteLink() {
+                try {
+                    const text = await navigator.clipboard.readText();
+                    if (text) {
+                        rawLinkInput.value = text.trim();
+                        handleConvert();
+                    } else {
+                        showLinkError('Буфер обмена пуст');
+                    }
+                } catch {
+                    showLinkError('Нет доступа к буферу. Вставьте вручную (Ctrl+V).');
+                }
+            }
+
+            function handleClearLink() {
+                rawLinkInput.value = '';
+                linkOutput.value = '';
+                linkResultSection.style.display = 'none';
+                hideLinkError();
+                rawLinkInput.focus();
+            }
+
+            async function handleCopyLink() {
+                const text = linkOutput.value;
+                if (!text) return;
+                try {
+                    await navigator.clipboard.writeText(text);
+                } catch {
+                    linkOutput.select();
+                    document.execCommand('copy');
+                }
+                copyLinkBtn.textContent = 'Скопировано!';
+                copyLinkBtn.classList.add('copied');
+                setTimeout(() => {
+                    copyLinkBtn.textContent = 'Копировать';
+                    copyLinkBtn.classList.remove('copied');
+                }, 1500);
+            }
+
+            rawLinkInput.addEventListener('paste', () => {
+                setTimeout(() => {
+                    if (rawLinkInput.value.trim()) handleConvert();
+                }, 30);
+            });
+            rawLinkInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') { e.preventDefault(); handleConvert(); }
+            });
+
+            convertBtn.addEventListener('click', handleConvert);
+            pasteLinkBtn.addEventListener('click', handlePasteLink);
+            clearLinkBtn.addEventListener('click', handleClearLink);
+            copyLinkBtn.addEventListener('click', handleCopyLink);
+
+            /* =====================================================
+               ВКЛАДКА 2: Raw → Текст файла + скачивание + сохранение
+               ===================================================== */
+            const rawTextInput = document.getElementById('rawTextInput');
+            const loadBtn = document.getElementById('loadBtn');
+            const pasteTextBtn = document.getElementById('pasteTextBtn');
+            const clearTextBtn = document.getElementById('clearTextBtn');
+            const textError = document.getElementById('textError');
+            const textErrorText = document.getElementById('textErrorText');
+            const textResultSection = document.getElementById('textResultSection');
+            const resultContent = document.getElementById('resultContent');
+            const fileInfo = document.getElementById('fileInfo');
+            const copyTextBtn = document.getElementById('copyTextBtn');
+            const downloadTextBtn = document.getElementById('downloadTextBtn');
+            const saveBtn = document.getElementById('saveBtn');
+            const saveStatus = document.getElementById('saveStatus');
+
+            // Модальные окна
+            const saveModal = document.getElementById('saveModal');
+            const saveModalDescription = document.getElementById('saveModalDescription');
+            const modalPastefyBtn = document.getElementById('modalPastefyBtn');
+            const modalGithubBtn = document.getElementById('modalGithubBtn');
+            const modalSaveCancelBtn = document.getElementById('modalSaveCancelBtn');
+
+            const pastefyModal = document.getElementById('pastefyModal');
+            const modalSingleBtn = document.getElementById('modalSingleBtn');
+            const modalSplitBtn = document.getElementById('modalSplitBtn');
+            const modalCancelBtn = document.getElementById('modalCancelBtn');
+            const modalSplitInfo = document.getElementById('modalSplitInfo');
+            const modalDescription = document.getElementById('modalDescription');
+
+            const githubModal = document.getElementById('githubModal');
+            const ghToken = document.getElementById('ghToken');
+            const ghOwner = document.getElementById('ghOwner');
+            const ghRepo = document.getElementById('ghRepo');
+            const ghBranch = document.getElementById('ghBranch');
+            const ghPath = document.getElementById('ghPath');
+            const ghMessage = document.getElementById('ghMessage');
+            const ghRemember = document.getElementById('ghRemember');
+            const ghSubmitBtn = document.getElementById('ghSubmitBtn');
+            const ghCancelBtn = document.getElementById('ghCancelBtn');
+
+            let currentFileName = 'file.txt';
+            let currentFileText = '';
+
+            // Pastefy API-ключ (замените на свой)
+            const PASTEFY_API_KEY = 'UpIkaHprREL2DoDgGmDsuIkNkIEG3yF6ETFfvqviY3YuC8oVxZd64FoJ6Qap';
+            const PASTEFY_LIMIT_BYTES = 1024 * 1024;
+            const SPLIT_CHUNK_BYTES = 900 * 1024;
+
+            function getFileName(url) {
+                try {
+                    const path = new URL(url).pathname;
+                    const parts = path.split('/').filter(Boolean);
+                    return decodeURIComponent(parts[parts.length - 1]) || 'файл';
+                } catch {
+                    return 'файл';
+                }
+            }
+
+            function showTextError(msg) {
+                textErrorText.textContent = msg;
+                textError.classList.remove('hidden');
+            }
+            function hideTextError() {
+                textError.classList.add('hidden');
+            }
+            function showTextResult(text, url) {
+                currentFileText = text;
+                currentFileName = getFileName(url);
+                resultContent.textContent = text;
+                const sizeMB = (new Blob([text]).size / 1024 / 1024).toFixed(2);
+                fileInfo.textContent = `${currentFileName} · ${text.length} символов · ${sizeMB} МБ`;
+                textResultSection.style.display = 'block';
+                hideTextError();
+                copyTextBtn.textContent = '📋 Копировать весь текст';
+                copyTextBtn.classList.remove('copied');
+                saveStatus.style.display = 'none';
+                saveStatus.innerHTML = '';
+            }
+
+            async function loadText() {
+                const url = rawTextInput.value.trim();
+                if (!url) { showTextError('Введите ссылку на файл'); return; }
+                try { new URL(url); } catch {
+                    showTextError('Некорректный URL. Проверьте ссылку.'); return;
+                }
+
+                loadBtn.disabled = true;
+                const originalHTML = loadBtn.innerHTML;
+                loadBtn.innerHTML = '<span class="spinner"></span> Загрузка...';
+                hideTextError();
+
+                try {
+                    const response = await fetch(url, {
+                        method: 'GET',
+                        redirect: 'follow',
+                        headers: { 'Accept': 'text/plain, */*' }
+                    });
+                    if (!response.ok) throw new Error(`Ошибка ${response.status}: файл не найден или недоступен`);
+                    const text = await response.text();
+                    if (!text) {
+                        showTextError('Файл пустой или не содержит текста');
+                        textResultSection.style.display = 'none';
+                    } else {
+                        showTextResult(text, url);
+                    }
+                } catch (err) {
+                    let msg = err.message;
+                    if (msg.includes('Failed to fetch') || msg.includes('NetworkError')) {
+                        msg = 'Не удалось загрузить файл. Проверьте ссылку, интернет или CORS-политику сайта.';
+                    } else if (msg.includes('CORS')) {
+                        msg = 'Сайт запрещает скачивание из браузера (CORS). Попробуйте другую ссылку.';
+                    }
+                    showTextError(msg);
+                    textResultSection.style.display = 'none';
+                } finally {
+                    loadBtn.disabled = false;
+                    loadBtn.innerHTML = originalHTML;
+                }
+            }
+
+            async function handlePasteText() {
+                try {
+                    const text = await navigator.clipboard.readText();
+                    if (text) { rawTextInput.value = text.trim(); await loadText(); }
+                    else { showTextError('Буфер обмена пуст'); }
+                } catch { showTextError('Нет доступа к буферу. Вставьте вручную (Ctrl+V).'); }
+            }
+
+            function handleClearText() {
+                rawTextInput.value = '';
+                resultContent.textContent = '';
+                textResultSection.style.display = 'none';
+                currentFileText = '';
+                currentFileName = 'file.txt';
+                hideTextError();
+                saveStatus.style.display = 'none';
+                saveStatus.innerHTML = '';
+                rawTextInput.focus();
+            }
+
+            async function handleCopyText() {
+                const text = resultContent.textContent;
+                if (!text) return;
+                try {
+                    await navigator.clipboard.writeText(text);
+                    showTextCopied();
+                } catch {
+                    const range = document.createRange();
+                    range.selectNode(resultContent);
+                    window.getSelection().removeAllRanges();
+                    window.getSelection().addRange(range);
+                    try { document.execCommand('copy'); showTextCopied(); }
+                    catch { showTextError('Не удалось скопировать. Выделите текст вручную.'); }
+                }
+            }
+
+            function showTextCopied() {
+                copyTextBtn.textContent = '✅ Скопировано!';
+                copyTextBtn.classList.add('copied');
+                setTimeout(() => {
+                    copyTextBtn.textContent = '📋 Копировать весь текст';
+                    copyTextBtn.classList.remove('copied');
+                }, 1800);
+            }
+
+            function handleDownload() {
+                if (!currentFileText) {
+                    showTextError('Нет данных для скачивания');
+                    return;
+                }
+                try {
+                    const blob = new Blob([currentFileText], { type: 'text/plain;charset=utf-8' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = currentFileName || 'file.txt';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                } catch (err) {
+                    showTextError('Ошибка при скачивании: ' + err.message);
+                }
+            }
+
+            /* ========== Сохранение: выбор сервиса ========== */
+            function handleSave() {
+                if (!currentFileText) {
+                    showTextError('Нет текста для сохранения');
+                    return;
+                }
+                const sizeBytes = new Blob([currentFileText]).size;
+                const sizeMB = (sizeBytes / 1024 / 1024).toFixed(2);
+                saveModalDescription.textContent = `Размер текста: ${sizeMB} МБ. Выберите сервис:`;
+                saveModal.classList.remove('hidden');
+            }
+
+            modalPastefyBtn.addEventListener('click', () => {
+                saveModal.classList.add('hidden');
+                openPastefyModal();
+            });
+
+            modalGithubBtn.addEventListener('click', () => {
+                saveModal.classList.add('hidden');
+                openGithubModal();
+            });
+
+            modalSaveCancelBtn.addEventListener('click', () => {
+                saveModal.classList.add('hidden');
+            });
+            saveModal.addEventListener('click', (e) => {
+                if (e.target === saveModal) saveModal.classList.add('hidden');
+            });
+
+            /* ========== Pastefy ========== */
+            async function sendOnePaste(content, title) {
+                const response = await fetch('https://pastefy.app/api/v2/paste', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${PASTEFY_API_KEY}`
+                    },
+                    body: JSON.stringify({
+                        content: content,
+                        title: title,
+                        visibility: 'UNLISTED'
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    const errorMsg = errorData.message || `Ошибка ${response.status}`;
+                    throw new Error(errorMsg);
+                }
+
+                const data = await response.json();
+                const pasteId = data && data.paste && data.paste.id;
+                if (!pasteId) throw new Error('Не удалось получить ID паста');
+                return `https://pastefy.app/${pasteId}`;
+            }
+
+            function splitTextIntoChunks(text, maxBytes) {
+                const chunks = [];
+                let currentChunk = '';
+                let currentBytes = 0;
+                const lines = text.split('\n');
+
+                for (let i = 0; i < lines.length; i++) {
+                    const line = lines[i];
+                    const lineWithNewline = line + (i < lines.length - 1 ? '\n' : '');
+                    const lineBytes = new Blob([lineWithNewline]).size;
+
+                    if (lineBytes > maxBytes) {
+                        if (currentChunk) {
+                            chunks.push(currentChunk);
+                            currentChunk = '';
+                            currentBytes = 0;
+                        }
+                        let buffer = '';
+                        let bufferBytes = 0;
+                        for (const char of line) {
+                            const charBytes = new Blob([char]).size;
+                            if (bufferBytes + charBytes > maxBytes) {
+                                chunks.push(buffer);
+                                buffer = '';
+                                bufferBytes = 0;
+                            }
+                            buffer += char;
+                            bufferBytes += charBytes;
+                        }
+                        if (buffer) {
+                            currentChunk = buffer + (i < lines.length - 1 ? '\n' : '');
+                            currentBytes = new Blob([currentChunk]).size;
+                        }
+                        continue;
+                    }
+
+                    if (currentBytes + lineBytes > maxBytes) {
+                        chunks.push(currentChunk);
+                        currentChunk = lineWithNewline;
+                        currentBytes = lineBytes;
+                    } else {
+                        currentChunk += lineWithNewline;
+                        currentBytes += lineBytes;
+                    }
+                }
+
+                if (currentChunk) chunks.push(currentChunk);
+                return chunks;
+            }
+
+            async function sendAsSingle() {
+                pastefyModal.classList.add('hidden');
+                saveBtn.disabled = true;
+                const originalHTML = saveBtn.innerHTML;
+                saveBtn.innerHTML = '<span class="spinner"></span> Отправка...';
+                saveStatus.style.display = 'none';
+                saveStatus.innerHTML = '';
+                hideTextError();
+
+                try {
+                    const url = await sendOnePaste(currentFileText, currentFileName || 'Файл из Raw-инструментов');
+                    saveStatus.innerHTML = `✅ Сохранено в Pastefy: <a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`;
+                    saveStatus.style.display = 'block';
+                    window.open(url, '_blank', 'noopener,noreferrer');
+                } catch (err) {
+                    let msg = err.message;
+                    if (msg.includes('Failed to fetch') || msg.includes('NetworkError')) {
+                        msg = 'Не удалось связаться с Pastefy. Возможно, текст слишком большой.';
+                    }
+                    showTextError('Ошибка Pastefy: ' + msg);
+                } finally {
+                    saveBtn.disabled = false;
+                    saveBtn.innerHTML = originalHTML;
+                }
+            }
+
+            async function sendAsSplit() {
+                pastefyModal.classList.add('hidden');
+                saveBtn.disabled = true;
+                const originalHTML = saveBtn.innerHTML;
+                saveStatus.style.display = 'none';
+                saveStatus.innerHTML = '';
+                hideTextError();
+
+                try {
+                    const chunks = splitTextIntoChunks(currentFileText, SPLIT_CHUNK_BYTES);
+                    const total = chunks.length;
+
+                    const baseName = (currentFileName || 'файл').replace(/\.[^.]+$/, '');
+                    const ext = (currentFileName || '').match(/\.[^.]+$/)?.[0] || '.txt';
+
+                    const urls = [];
+                    for (let i = 0; i < chunks.length; i++) {
+                        saveBtn.innerHTML = `<span class="spinner"></span> Часть ${i + 1} из ${total}...`;
+                        const title = `${baseName} — часть ${i + 1}/${total}${ext}`;
+                        const url = await sendOnePaste(chunks[i], title);
+                        urls.push(url);
+                    }
+
+                    let html = `✅ Создано ${urls.length} частей в Pastefy:<div class="pastefy-list">`;
+                    urls.forEach((u, i) => {
+                        html += `<a href="${u}" target="_blank" rel="noopener noreferrer">Часть ${i + 1}: ${u}</a>`;
+                    });
+                    html += `</div>`;
+                    saveStatus.innerHTML = html;
+                    saveStatus.style.display = 'block';
+
+                    if (urls[0]) {
+                        window.open(urls[0], '_blank', 'noopener,noreferrer');
+                    }
+                } catch (err) {
+                    let msg = err.message;
+                    if (msg.includes('Failed to fetch') || msg.includes('NetworkError')) {
+                        msg = 'Не удалось связаться с Pastefy. Проверьте интернет.';
+                    }
+                    showTextError('Ошибка Pastefy: ' + msg);
+                } finally {
+                    saveBtn.disabled = false;
+                    saveBtn.innerHTML = originalHTML;
+                }
+            }
+
+            function openPastefyModal() {
+                const sizeBytes = new Blob([currentFileText]).size;
+                const sizeMB = (sizeBytes / 1024 / 1024).toFixed(2);
+                modalDescription.textContent = `Размер текста: ${sizeMB} МБ. Выберите способ отправки:`;
+                const chunksCount = Math.ceil(sizeBytes / SPLIT_CHUNK_BYTES);
+                modalSplitInfo.textContent = `Будет создано ${chunksCount} ${declOfNum(chunksCount, ['паст', 'паста', 'пастов'])} по ~${(SPLIT_CHUNK_BYTES / 1024).toFixed(0)} КБ`;
+                pastefyModal.classList.remove('hidden');
+            }
+
+            function declOfNum(n, titles) {
+                return titles[
+                    (n % 10 === 1 && n % 100 !== 11) ? 0 :
+                    (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20)) ? 1 : 2
+                ];
+            }
+
+            modalSingleBtn.addEventListener('click', sendAsSingle);
+            modalSplitBtn.addEventListener('click', sendAsSplit);
+            modalCancelBtn.addEventListener('click', () => {
+                pastefyModal.classList.add('hidden');
+            });
+            pastefyModal.addEventListener('click', (e) => {
+                if (e.target === pastefyModal) pastefyModal.classList.add('hidden');
+            });
+
+            /* ========== GitHub ========== */
+            const GH_STORAGE_KEY = 'rawToolsGithubSettings';
+
+            function loadGithubSettings() {
+                try {
+                    const saved = localStorage.getItem(GH_STORAGE_KEY);
+                    if (saved) {
+                        const s = JSON.parse(saved);
+                        if (s.token) ghToken.value = s.token;
+                        if (s.owner) ghOwner.value = s.owner;
+                        if (s.repo) ghRepo.value = s.repo;
+                        if (s.branch) ghBranch.value = s.branch;
+                        if (s.path) ghPath.value = s.path;
+                        if (s.message) ghMessage.value = s.message;
+                        if (s.remember) {
+                            ghRemember.checked = true;
+                        }
+                    }
+                } catch(e) {}
+            }
+
+            function saveGithubSettings() {
+                try {
+                    if (ghRemember.checked) {
+                        const s = {
+                            token: ghToken.value.trim(),
+                            owner: ghOwner.value.trim(),
+                            repo: ghRepo.value.trim(),
+                            branch: ghBranch.value.trim(),
+                            path: ghPath.value.trim(),
+                            message: ghMessage.value.trim(),
+                            remember: true
+                        };
+                        localStorage.setItem(GH_STORAGE_KEY, JSON.stringify(s));
+                    } else {
+                        localStorage.removeItem(GH_STORAGE_KEY);
+                    }
+                } catch(e) {}
+            }
+
+            function openGithubModal() {
+                // Подставляем имя файла по умолчанию, если путь пустой
+                if (!ghPath.value.trim() && currentFileName) {
+                    ghPath.value = currentFileName;
+                }
+                if (!ghMessage.value.trim()) {
+                    ghMessage.value = `Update ${currentFileName || 'file'}`;
+                }
+                if (!ghBranch.value.trim()) ghBranch.value = 'main';
+                loadGithubSettings();
+                githubModal.classList.remove('hidden');
+            }
+
+            ghCancelBtn.addEventListener('click', () => {
+                githubModal.classList.add('hidden');
+            });
+            githubModal.addEventListener('click', (e) => {
+                if (e.target === githubModal) githubModal.classList.add('hidden');
+            });
+
+            // Кодирование UTF-8 в base64
+            function utf8ToBase64(str) {
+                const bytes = new TextEncoder().encode(str);
+                let binary = '';
+                const chunkSize = 0x8000;
+                for (let i = 0; i < bytes.length; i += chunkSize) {
+                    const chunk = bytes.subarray(i, i + chunkSize);
+                    binary += String.fromCharCode.apply(null, chunk);
+                }
+                return btoa(binary);
+            }
+
+            async function saveToGithub() {
+                const token = ghToken.value.trim();
+                const owner = ghOwner.value.trim();
+                const repo = ghRepo.value.trim();
+                const branch = ghBranch.value.trim() || 'main';
+                let path = ghPath.value.trim();
+                const message = ghMessage.value.trim() || `Update ${path || 'file'}`;
+
+                if (!token) { showTextError('Введите GitHub токен'); return; }
+                if (!owner) { showTextError('Введите владельца репозитория'); return; }
+                if (!repo) { showTextError('Введите название репозитория'); return; }
+                if (!path) { showTextError('Введите путь к файлу'); return; }
+
+                // Убираем ведущий слэш
+                path = path.replace(/^\/+/, '');
+
+                ghSubmitBtn.disabled = true;
+                const originalHTML = ghSubmitBtn.innerHTML;
+                ghSubmitBtn.innerHTML = '<span class="spinner"></span> Сохранение...';
+                hideTextError();
+
+                const apiBase = `https://api.github.com/repos/${owner}/${repo}/contents/${encodeURIComponent(path).replace(/%2F/g, '/')}`;
+                const contentBase64 = utf8ToBase64(currentFileText);
+
+                try {
+                    // Проверяем, существует ли файл, чтобы получить SHA
+                    let sha = null;
+                    try {
+                        const getResp = await fetch(`${apiBase}?ref=${encodeURIComponent(branch)}`, {
+                            headers: {
+                                'Authorization': `Bearer ${token}`,
+                                'Accept': 'application/vnd.github.v3+json'
+                            }
+                        });
+                        if (getResp.ok) {
+                            const data = await getResp.json();
+                            sha = data.sha;
+                        } else if (getResp.status === 404) {
+                            sha = null;
+                        } else {
+                            const errData = await getResp.json().catch(() => ({}));
+                            throw new Error(errData.message || `Ошибка проверки файла: ${getResp.status}`);
+                        }
+                    } catch (e) {
+                        if (e.message && !e.message.includes('404')) {
+                            // Если ошибка не 404, пробрасываем
+                            if (!e.message.includes('Ошибка проверки')) throw e;
+                        }
+                    }
+
+                    const body = {
+                        message: message,
+                        content: contentBase64,
+                        branch: branch
+                    };
+                    if (sha) body.sha = sha;
+
+                    const putResp = await fetch(apiBase, {
+                        method: 'PUT',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/vnd.github.v3+json'
+                        },
+                        body: JSON.stringify(body)
+                    });
+
+                    if (!putResp.ok) {
+                        const errData = await putResp.json().catch(() => ({}));
+                        throw new Error(errData.message || `Ошибка ${putResp.status}`);
+                    }
+
+                    const result = await putResp.json();
+                    const fileUrl = result.content && result.content.html_url
+                        ? result.content.html_url
+                        : `https://github.com/${owner}/${repo}/blob/${branch}/${path}`;
+
+                    saveGithubSettings();
+                    githubModal.classList.add('hidden');
+
+                    saveStatus.innerHTML = `✅ Сохранено в GitHub: <a href="${fileUrl}" target="_blank" rel="noopener noreferrer">${fileUrl}</a>`;
+                    saveStatus.style.display = 'block';
+                    window.open(fileUrl, '_blank', 'noopener,noreferrer');
+                } catch (err) {
+                    let msg = err.message;
+                    if (msg.includes('Failed to fetch') || msg.includes('NetworkError')) {
+                        msg = 'Не удалось связаться с GitHub. Проверьте интернет.';
+                    }
+                    showTextError('Ошибка GitHub: ' + msg);
+                } finally {
+                    ghSubmitBtn.disabled = false;
+                    ghSubmitBtn.innerHTML = originalHTML;
+                }
+            }
+
+            ghSubmitBtn.addEventListener('click', saveToGithub);
+
+            // Инициализация настроек GitHub при загрузке
+            loadGithubSettings();
+
+            rawTextInput.addEventListener('paste', () => {
+                setTimeout(() => { if (rawTextInput.value.trim()) loadText(); }, 30);
+            });
+            rawTextInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') { e.preventDefault(); loadText(); }
+            });
+
+            loadBtn.addEventListener('click', loadText);
+            pasteTextBtn.addEventListener('click', handlePasteText);
+            clearTextBtn.addEventListener('click', handleClearText);
+            copyTextBtn.addEventListener('click', handleCopyText);
+            downloadTextBtn.addEventListener('click', handleDownload);
+            saveBtn.addEventListener('click', handleSave);
+
+            /* =====================================================
+               ВКЛАДКА 3: Raw → loadstring для Roblox
+               ===================================================== */
+            const rawRobloxInput = document.getElementById('rawRobloxInput');
+            const makeRobloxBtn = document.getElementById('makeRobloxBtn');
+            const pasteRobloxBtn = document.getElementById('pasteRobloxBtn');
+            const clearRobloxBtn = document.getElementById('clearRobloxBtn');
+            const robloxError = document.getElementById('robloxError');
+            const robloxErrorText = document.getElementById('robloxErrorText');
+            const robloxResultSection = document.getElementById('robloxResultSection');
+            const robloxOutput = document.getElementById('robloxOutput');
+            const copyRobloxBtn = document.getElementById('copyRobloxBtn');
+
+            function autoResizeTextarea() {
+                robloxOutput.style.height = 'auto';
+                robloxOutput.style.height = robloxOutput.scrollHeight + 'px';
+            }
+
+            function makeRobloxCommand(rawUrl) {
+                const trimmed = rawUrl.trim();
+                if (!trimmed) throw new Error('Пустая ссылка');
+
+                try {
+                    new URL(trimmed);
+                } catch {
+                    throw new Error('Некорректный URL. Проверьте ссылку.');
+                }
+
+                const safeUrl = trimmed.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+                return `loadstring(game:HttpGet("${safeUrl}"))()`;
+            }
+
+            function showRobloxError(msg) {
+                robloxErrorText.textContent = msg;
+                robloxError.classList.remove('hidden');
+                robloxResultSection.style.display = 'none';
+                robloxOutput.value = '';
+            }
+            function hideRobloxError() {
+                robloxError.classList.add('hidden');
+            }
+
+            function handleMakeRoblox() {
+                const val = rawRobloxInput.value.trim();
+                if (!val) {
+                    showRobloxError('Введите raw-ссылку на скрипт');
+                    return;
+                }
+                try {
+                    const cmd = makeRobloxCommand(val);
+                    robloxOutput.value = cmd;
+                    robloxResultSection.style.display = 'block';
+                    hideRobloxError();
+                    autoResizeTextarea();
+                    copyRobloxBtn.textContent = 'Копировать';
+                    copyRobloxBtn.classList.remove('copied');
+                } catch (err) {
+                    showRobloxError(err.message);
+                }
+            }
+
+            async function handlePasteRoblox() {
+                try {
+                    const text = await navigator.clipboard.readText();
+                    if (text) {
+                        rawRobloxInput.value = text.trim();
+                        handleMakeRoblox();
+                    } else {
+                        showRobloxError('Буфер обмена пуст');
+                    }
+                } catch {
+                    showRobloxError('Нет доступа к буферу. Вставьте вручную (Ctrl+V).');
+                }
+            }
+
+            function handleClearRoblox() {
+                rawRobloxInput.value = '';
+                robloxOutput.value = '';
+                robloxResultSection.style.display = 'none';
+                hideRobloxError();
+                rawRobloxInput.focus();
+            }
+
+            async function handleCopyRoblox() {
+                const text = robloxOutput.value;
+                if (!text) return;
+                try {
+                    await navigator.clipboard.writeText(text);
+                } catch {
+                    robloxOutput.select();
+                    document.execCommand('copy');
+                }
+                copyRobloxBtn.textContent = 'Скопировано!';
+                copyRobloxBtn.classList.add('copied');
+                setTimeout(() => {
+                    copyRobloxBtn.textContent = 'Копировать';
+                    copyRobloxBtn.classList.remove('copied');
+                }, 1500);
+            }
+
+            rawRobloxInput.addEventListener('paste', () => {
+                setTimeout(() => { if (rawRobloxInput.value.trim()) handleMakeRoblox(); }, 30);
+            });
+            rawRobloxInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') { e.preventDefault(); handleMakeRoblox(); }
+            });
+
+            makeRobloxBtn.addEventListener('click', handleMakeRoblox);
+            pasteRobloxBtn.addEventListener('click', handlePasteRoblox);
+            clearRobloxBtn.addEventListener('click', handleClearRoblox);
+            copyRobloxBtn.addEventListener('click', handleCopyRoblox);
+
+            rawLinkInput.focus();
+        })();
+    </script>
+</body>
+</html>
