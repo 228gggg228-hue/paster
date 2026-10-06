@@ -39,48 +39,6 @@
 
         #bgLayer.active { opacity: 1; }
 
-        #bgLayer.anim-pan {
-            animation: bgPan 30s ease-in-out infinite alternate;
-            background-size: 120% 120%;
-        }
-        @keyframes bgPan {
-            0%   { background-position: 0% 50%; }
-            100% { background-position: 100% 50%; }
-        }
-
-        #bgLayer.anim-zoom {
-            animation: bgZoom 25s ease-in-out infinite alternate;
-        }
-        @keyframes bgZoom {
-            0%   { transform: scale(1); }
-            100% { transform: scale(1.25); }
-        }
-
-        #bgLayer.anim-gradient {
-            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab, #7c3aed, #2da44e);
-            background-size: 400% 400%;
-            animation: bgGradient 15s ease infinite;
-        }
-        @keyframes bgGradient {
-            0%   { background-position: 0% 50%; }
-            50%  { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-
-        #bgOverlay {
-            position: fixed;
-            inset: 0;
-            z-index: -1;
-            background: rgba(0,0,0,0);
-            transition: background 0.3s;
-            pointer-events: none;
-        }
-
-        #bgLayer.blurred {
-            filter: blur(8px);
-            transform: scale(1.05);
-        }
-
         /* ====== Карточка ====== */
         .card {
             background: #fff;
@@ -89,9 +47,11 @@
             max-width: 720px;
             width: 100%;
             padding: 2rem;
-            transition: background 0.25s, box-shadow 0.2s, backdrop-filter 0.25s;
+            transition: background 0.25s, box-shadow 0.2s, opacity 0.25s, transform 0.25s;
             position: relative;
             z-index: 1;
+
+            --card-alpha: 1;
         }
 
         body.dark .card {
@@ -100,23 +60,52 @@
             color: #e6edf3;
         }
 
-        /* Прозрачность задаётся через CSS-переменные из JS:
-           --card-alpha     — альфа-канал фона карточки (0..1)
-           --card-blur      — размытие карточки в px
-           Значения по умолчанию — непрозрачная карточка */
-        .card {
-            --card-alpha: 1;
-            --card-blur: 0px;
-        }
-
         body.has-bg .card {
             background: rgba(255, 255, 255, var(--card-alpha));
-            backdrop-filter: blur(var(--card-blur));
-            -webkit-backdrop-filter: blur(var(--card-blur));
         }
 
         body.dark.has-bg .card {
             background: rgba(22, 27, 34, var(--card-alpha));
+        }
+
+        /* Полностью скрытая карточка */
+        body.card-hidden .card {
+            opacity: 0;
+            pointer-events: none;
+            transform: scale(0.98);
+        }
+
+        /* «Ручка» для возврата меню, когда карточка скрыта */
+        #cardHandle {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 999;
+            padding: 0.7rem 1.4rem;
+            background: rgba(124, 58, 237, 0.9);
+            color: white;
+            border: none;
+            border-radius: 40px;
+            font-family: inherit;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+            display: none;
+            align-items: center;
+            gap: 0.5rem;
+            backdrop-filter: blur(8px);
+            transition: transform 0.15s, background 0.15s;
+        }
+
+        #cardHandle:hover {
+            background: rgba(124, 58, 237, 1);
+            transform: translate(-50%, -50%) scale(1.05);
+        }
+
+        body.card-hidden #cardHandle {
+            display: inline-flex;
         }
 
         h1 {
@@ -813,54 +802,16 @@
             color: #7c3aed;
             font-weight: 600;
         }
-        .bg-form .row {
-            display: flex;
-            align-items: center;
-            gap: 0.6rem;
-            margin-bottom: 0.6rem;
-        }
-        .bg-form .row input[type="range"] { flex: 1; }
 
-        .bg-presets {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
+        /* Кнопки под ползунком прозрачности */
+        .alpha-actions {
+            display: flex;
             gap: 0.5rem;
-            margin-bottom: 1rem;
+            margin-top: 0.6rem;
         }
-
-        .bg-preset {
-            aspect-ratio: 1;
-            border-radius: 10px;
-            border: 2px solid transparent;
-            cursor: pointer;
-            transition: all 0.15s;
-            background-size: cover;
-            background-position: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .bg-preset:hover { transform: scale(1.05); }
-        .bg-preset.active { border-color: #7c3aed; box-shadow: 0 0 0 3px rgba(124,58,237,0.3); }
-
-        .bg-preset.g1 { background: linear-gradient(135deg, #667eea, #764ba2); }
-        .bg-preset.g2 { background: linear-gradient(135deg, #f093fb, #f5576c); }
-        .bg-preset.g3 { background: linear-gradient(135deg, #4facfe, #00f2fe); }
-        .bg-preset.g4 { background: linear-gradient(135deg, #43e97b, #38f9d7); }
-        .bg-preset.g5 { background: linear-gradient(135deg, #fa709a, #fee140); }
-        .bg-preset.g6 { background: linear-gradient(135deg, #30cfd0, #330867); }
-        .bg-preset.g7 { background: linear-gradient(135deg, #a8edea, #fed6e3); }
-        .bg-preset.g8 { background: linear-gradient(135deg, #ff9a9e, #fecfef); }
-
-        .bg-anim-options {
-            display: flex;
-            gap: 0.4rem;
-            flex-wrap: wrap;
-            margin-bottom: 1rem;
-        }
-        .bg-anim-options button {
+        .alpha-actions button {
             flex: 1 1 auto;
-            padding: 0.55rem 0.7rem;
+            padding: 0.55rem 0.8rem;
             font-size: 0.8rem;
             border-radius: 10px;
             border: 1.5px solid #d0d7de;
@@ -869,16 +820,34 @@
             cursor: pointer;
             font-family: inherit;
             font-weight: 500;
+            transition: background 0.15s, border 0.15s;
         }
-        body.dark .bg-anim-options button {
+        body.dark .alpha-actions button {
             background: #21262d;
             border-color: #30363d;
             color: #e6edf3;
         }
-        .bg-anim-options button.active {
-            background: #7c3aed;
-            color: white;
-            border-color: #7c3aed;
+        .alpha-actions button:hover {
+            background: #f0f2f5;
+        }
+        body.dark .alpha-actions button:hover {
+            background: #30363d;
+        }
+        .alpha-actions .btn-hide {
+            background: #24292f;
+            color: #fff;
+            border-color: #24292f;
+        }
+        body.dark .alpha-actions .btn-hide {
+            background: #e6edf3;
+            color: #0d1117;
+            border-color: #e6edf3;
+        }
+        .alpha-actions .btn-hide:hover {
+            background: #3a4048;
+        }
+        body.dark .alpha-actions .btn-hide:hover {
+            background: #c9d1d9;
         }
 
         .bg-preview {
@@ -913,7 +882,6 @@
             font-size: 0.8rem;
         }
 
-        /* ====== Мобильная адаптация ====== */
         @media (max-width: 480px) {
             body {
                 padding: 1rem;
@@ -935,7 +903,9 @@
 </head>
 <body>
     <div id="bgLayer"></div>
-    <div id="bgOverlay"></div>
+
+    <!-- Кнопка возврата меню, когда оно полностью скрыто -->
+    <button id="cardHandle" title="Показать меню">👁️ Показать меню</button>
 
     <div class="card">
         <h1>
@@ -1161,22 +1131,10 @@
     <div class="modal-overlay hidden" id="bgModal">
         <div class="modal">
             <h3>🖼️ Настройка фона</h3>
-            <p>Выберите готовый градиент, вставьте ссылку на картинку или загрузите файл с устройства.</p>
+            <p>Вставьте ссылку на картинку или загрузите файл с устройства.</p>
 
             <div class="bg-form">
                 <div class="bg-preview" id="bgPreview"></div>
-
-                <label>Готовые градиенты</label>
-                <div class="bg-presets" id="bgPresets">
-                    <div class="bg-preset g1" data-css="linear-gradient(135deg, #667eea, #764ba2)"></div>
-                    <div class="bg-preset g2" data-css="linear-gradient(135deg, #f093fb, #f5576c)"></div>
-                    <div class="bg-preset g3" data-css="linear-gradient(135deg, #4facfe, #00f2fe)"></div>
-                    <div class="bg-preset g4" data-css="linear-gradient(135deg, #43e97b, #38f9d7)"></div>
-                    <div class="bg-preset g5" data-css="linear-gradient(135deg, #fa709a, #fee140)"></div>
-                    <div class="bg-preset g6" data-css="linear-gradient(135deg, #30cfd0, #330867)"></div>
-                    <div class="bg-preset g7" data-css="linear-gradient(135deg, #a8edea, #fed6e3)"></div>
-                    <div class="bg-preset g8" data-css="linear-gradient(135deg, #ff9a9e, #fecfef)"></div>
-                </div>
 
                 <div class="field">
                     <label for="bgUrl">Ссылка на картинку</label>
@@ -1191,39 +1149,16 @@
                     <input type="file" id="bgFile" accept="image/*" style="width:100%; font-size:0.8rem;">
                 </div>
 
-                <label>Анимация</label>
-                <div class="bg-anim-options" id="bgAnimOptions">
-                    <button type="button" data-anim="none">🚫 Без</button>
-                    <button type="button" data-anim="pan">🌊 Панорама</button>
-                    <button type="button" data-anim="zoom">🔍 Зум</button>
-                    <button type="button" data-anim="gradient">🌈 Градиент</button>
-                </div>
-
-                <div class="field">
-                    <label>Затемнение фона: <span class="range-value" id="bgDarknessVal">30%</span></label>
-                    <input type="range" id="bgDarkness" min="0" max="80" value="30">
-                </div>
-
-                <div class="field">
-                    <label>Размытие фона: <span class="range-value" id="bgBlurVal">0px</span></label>
-                    <input type="range" id="bgBlur" min="0" max="20" value="0">
-                </div>
-
-                <!-- ✅ НОВЫЙ ПОЛЗУНОК: прозрачность карточки -->
+                <!-- Прозрачность меню -->
                 <div class="field">
                     <label>Прозрачность меню: <span class="range-value" id="bgCardAlphaVal">0%</span></label>
-                    <input type="range" id="bgCardAlpha" min="0" max="95" value="0">
+                    <input type="range" id="bgCardAlpha" min="0" max="100" value="0">
                     <div style="font-size:0.72rem; color:#8c959f; margin-top:0.2rem;">
-                        0% — непрозрачное, 95% — почти полностью прозрачное (виден фон)
+                        0% — непрозрачное, 100% — меню полностью исчезает
                     </div>
-                </div>
-
-                <!-- ✅ НОВЫЙ ПОЛЗУНОК: размытие карточки -->
-                <div class="field">
-                    <label>Размытие меню: <span class="range-value" id="bgCardBlurVal">0px</span></label>
-                    <input type="range" id="bgCardBlur" min="0" max="30" value="0">
-                    <div style="font-size:0.72rem; color:#8c959f; margin-top:0.2rem;">
-                        Помогает читать текст при высокой прозрачности
+                    <div class="alpha-actions">
+                        <button type="button" id="bgAlphaDefault">↩️ Стандарт</button>
+                        <button type="button" id="bgAlphaHide" class="btn-hide">👻 Убрать меню</button>
                     </div>
                 </div>
 
@@ -1278,36 +1213,27 @@
             const bgToggle = document.getElementById('bgToggle');
             const bgModal = document.getElementById('bgModal');
             const bgLayer = document.getElementById('bgLayer');
-            const bgOverlay = document.getElementById('bgOverlay');
             const bgPreview = document.getElementById('bgPreview');
             const bgUrl = document.getElementById('bgUrl');
             const bgApplyUrl = document.getElementById('bgApplyUrl');
             const bgFile = document.getElementById('bgFile');
-            const bgAnimOptions = document.getElementById('bgAnimOptions');
-            const bgDarkness = document.getElementById('bgDarkness');
-            const bgDarknessVal = document.getElementById('bgDarknessVal');
-            const bgBlur = document.getElementById('bgBlur');
-            const bgBlurVal = document.getElementById('bgBlurVal');
             const bgCardAlpha = document.getElementById('bgCardAlpha');
             const bgCardAlphaVal = document.getElementById('bgCardAlphaVal');
-            const bgCardBlur = document.getElementById('bgCardBlur');
-            const bgCardBlurVal = document.getElementById('bgCardBlurVal');
+            const bgAlphaDefault = document.getElementById('bgAlphaDefault');
+            const bgAlphaHide = document.getElementById('bgAlphaHide');
             const bgSaveBtn = document.getElementById('bgSaveBtn');
             const bgResetBtn = document.getElementById('bgResetBtn');
             const bgCancelBtn = document.getElementById('bgCancelBtn');
-            const bgPresets = document.getElementById('bgPresets');
             const cardEl = document.querySelector('.card');
+            const cardHandle = document.getElementById('cardHandle');
 
             const BG_STORAGE_KEY = 'rawToolsBackground';
+            const ALPHA_DEFAULT = 0;   // значение по умолчанию (непрозрачное)
 
             let bgState = {
                 type: 'none',
                 value: '',
-                anim: 'none',
-                darkness: 30,
-                blur: 0,
-                cardAlpha: 0,    // 0..95 (проценты прозрачности)
-                cardBlur: 0      // 0..30 (px)
+                cardAlpha: ALPHA_DEFAULT
             };
 
             function applyBgState(state, save) {
@@ -1318,7 +1244,6 @@
                 bgLayer.style.backgroundImage = '';
                 bgLayer.style.backgroundSize = '';
                 bgLayer.style.backgroundPosition = '';
-                bgLayer.style.transform = '';
 
                 if (state.type === 'image' && state.value) {
                     bgLayer.style.backgroundImage = `url("${state.value}")`;
@@ -1326,63 +1251,31 @@
                     bgLayer.style.backgroundPosition = 'center';
                     bgLayer.classList.add('active');
                     body.classList.add('has-bg');
-
-                    if (state.anim === 'pan') bgLayer.classList.add('anim-pan');
-                    else if (state.anim === 'zoom') bgLayer.classList.add('anim-zoom');
-                } else if (state.type === 'css' && state.value) {
-                    bgLayer.style.background = state.value;
-                    bgLayer.style.backgroundSize = 'cover';
-                    bgLayer.classList.add('active');
-                    body.classList.add('has-bg');
-
-                    if (state.anim === 'gradient') bgLayer.classList.add('anim-gradient');
                 } else {
                     bgLayer.classList.remove('active');
                     body.classList.remove('has-bg');
                 }
 
-                if (state.blur > 0) {
-                    bgLayer.classList.add('blurred');
-                    bgLayer.style.filter = `blur(${state.blur}px)`;
-                } else {
-                    bgLayer.style.filter = '';
-                }
-
-                bgOverlay.style.background = `rgba(0,0,0,${state.darkness / 100})`;
-
-                // ✅ Прозрачность карточки: 0% → alpha 1, 95% → alpha 0.05
                 const alpha = 1 - (state.cardAlpha / 100);
                 cardEl.style.setProperty('--card-alpha', alpha.toFixed(3));
-                cardEl.style.setProperty('--card-blur', state.cardBlur + 'px');
 
-                // Превью фона
+                // ✅ Полное скрытие меню
+                if (state.cardAlpha >= 100) {
+                    body.classList.add('card-hidden');
+                } else {
+                    body.classList.remove('card-hidden');
+                }
+
                 if (state.type === 'image' && state.value) {
                     bgPreview.style.backgroundImage = `url("${state.value}")`;
                     bgPreview.style.background = '';
-                } else if (state.type === 'css' && state.value) {
-                    bgPreview.style.background = state.value;
-                    bgPreview.style.backgroundImage = '';
                 } else {
                     bgPreview.style.background = '#f0f2f5';
                     bgPreview.style.backgroundImage = '';
                 }
 
-                bgAnimOptions.querySelectorAll('button').forEach(b => {
-                    b.classList.toggle('active', b.dataset.anim === state.anim);
-                });
-
-                bgPresets.querySelectorAll('.bg-preset').forEach(p => {
-                    p.classList.toggle('active', p.dataset.css === state.value);
-                });
-
-                bgDarkness.value = state.darkness;
-                bgDarknessVal.textContent = state.darkness + '%';
-                bgBlur.value = state.blur;
-                bgBlurVal.textContent = state.blur + 'px';
                 bgCardAlpha.value = state.cardAlpha;
                 bgCardAlphaVal.textContent = state.cardAlpha + '%';
-                bgCardBlur.value = state.cardBlur;
-                bgCardBlurVal.textContent = state.cardBlur + 'px';
 
                 if (save) {
                     try { localStorage.setItem(BG_STORAGE_KEY, JSON.stringify(state)); } catch(e) {}
@@ -1394,26 +1287,17 @@
                     const saved = localStorage.getItem(BG_STORAGE_KEY);
                     if (saved) {
                         const s = JSON.parse(saved);
-                        // Совместимость со старыми настройками
-                        s.cardAlpha = s.cardAlpha ?? 0;
-                        s.cardBlur = s.cardBlur ?? 0;
+                        s.cardAlpha = s.cardAlpha ?? ALPHA_DEFAULT;
                         applyBgState(s, false);
                     } else {
-                        // Применяем прозрачность по умолчанию даже без фона
                         applyBgState(bgState, false);
                     }
                 } catch(e) {}
             }
 
             bgToggle.addEventListener('click', () => {
-                bgDarkness.value = bgState.darkness;
-                bgDarknessVal.textContent = bgState.darkness + '%';
-                bgBlur.value = bgState.blur;
-                bgBlurVal.textContent = bgState.blur + 'px';
                 bgCardAlpha.value = bgState.cardAlpha;
                 bgCardAlphaVal.textContent = bgState.cardAlpha + '%';
-                bgCardBlur.value = bgState.cardBlur;
-                bgCardBlurVal.textContent = bgState.cardBlur + 'px';
                 bgUrl.value = bgState.type === 'image' ? bgState.value : '';
                 bgModal.classList.remove('hidden');
             });
@@ -1423,21 +1307,11 @@
                 if (e.target === bgModal) bgModal.classList.add('hidden');
             });
 
-            bgPresets.querySelectorAll('.bg-preset').forEach(p => {
-                p.addEventListener('click', () => {
-                    bgState.type = 'css';
-                    bgState.value = p.dataset.css;
-                    bgState.anim = 'gradient';
-                    applyBgState(bgState, false);
-                });
-            });
-
             bgApplyUrl.addEventListener('click', () => {
                 const url = bgUrl.value.trim();
                 if (!url) return;
                 bgState.type = 'image';
                 bgState.value = url;
-                if (bgState.anim === 'gradient') bgState.anim = 'pan';
                 applyBgState(bgState, false);
             });
 
@@ -1448,35 +1322,9 @@
                 reader.onload = (ev) => {
                     bgState.type = 'image';
                     bgState.value = ev.target.result;
-                    if (bgState.anim === 'gradient') bgState.anim = 'pan';
                     applyBgState(bgState, false);
                 };
                 reader.readAsDataURL(file);
-            });
-
-            bgAnimOptions.querySelectorAll('button').forEach(b => {
-                b.addEventListener('click', () => {
-                    bgState.anim = b.dataset.anim;
-                    if (bgState.anim === 'gradient') {
-                        if (bgState.type !== 'css') {
-                            bgState.type = 'css';
-                            bgState.value = 'linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab)';
-                        }
-                    }
-                    applyBgState(bgState, false);
-                });
-            });
-
-            bgDarkness.addEventListener('input', () => {
-                bgState.darkness = parseInt(bgDarkness.value, 10);
-                bgDarknessVal.textContent = bgState.darkness + '%';
-                applyBgState(bgState, false);
-            });
-
-            bgBlur.addEventListener('input', () => {
-                bgState.blur = parseInt(bgBlur.value, 10);
-                bgBlurVal.textContent = bgState.blur + 'px';
-                applyBgState(bgState, false);
             });
 
             bgCardAlpha.addEventListener('input', () => {
@@ -1485,9 +1333,19 @@
                 applyBgState(bgState, false);
             });
 
-            bgCardBlur.addEventListener('input', () => {
-                bgState.cardBlur = parseInt(bgCardBlur.value, 10);
-                bgCardBlurVal.textContent = bgState.cardBlur + 'px';
+            // ✅ Кнопка «Стандарт» — сбрасывает прозрачность к 0%
+            bgAlphaDefault.addEventListener('click', () => {
+                bgState.cardAlpha = ALPHA_DEFAULT;
+                bgCardAlpha.value = ALPHA_DEFAULT;
+                bgCardAlphaVal.textContent = ALPHA_DEFAULT + '%';
+                applyBgState(bgState, false);
+            });
+
+            // ✅ Кнопка «Убрать меню» — ставит 100%
+            bgAlphaHide.addEventListener('click', () => {
+                bgState.cardAlpha = 100;
+                bgCardAlpha.value = 100;
+                bgCardAlphaVal.textContent = '100%';
                 applyBgState(bgState, false);
             });
 
@@ -1497,11 +1355,21 @@
             });
 
             bgResetBtn.addEventListener('click', () => {
-                bgState = { type: 'none', value: '', anim: 'none', darkness: 30, blur: 0, cardAlpha: 0, cardBlur: 0 };
+                bgState = { type: 'none', value: '', cardAlpha: ALPHA_DEFAULT };
                 applyBgState(bgState, true);
                 bgUrl.value = '';
                 bgFile.value = '';
                 bgModal.classList.add('hidden');
+            });
+
+            // ✅ Клик по «ручке» возвращает меню
+            cardHandle.addEventListener('click', () => {
+                bgState.cardAlpha = ALPHA_DEFAULT;
+                bgCardAlpha.value = ALPHA_DEFAULT;
+                bgCardAlphaVal.textContent = ALPHA_DEFAULT + '%';
+                applyBgState(bgState, true);
+                // Открываем настройки фона сразу
+                bgModal.classList.remove('hidden');
             });
 
             loadBgState();
